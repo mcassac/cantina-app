@@ -1,0 +1,1220 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <title>Cantina — Acceso de Usuarios</title>
+
+  <style>
+    :root {
+      --bg:#0f172a;
+      --primary:#38bdf8;
+      --primary-dark:#1e40af;
+      --accent:#16a34a;
+      --danger:#dc2626;
+      --card:#fff;
+      --muted:#6b7280;
+      --font-stack:"SF Pro Display","Segoe UI",Roboto,Arial,sans-serif;
+    }
+
+    * { box-sizing:border-box; touch-action:manipulation; }
+
+    body {
+      margin:0;
+      font-family:var(--font-stack);
+      background:linear-gradient(120deg,#0f172a,#1e3a8a,#0f172a);
+      background-size:300% 300%;
+      animation:fondoAnimado 12s ease infinite;
+      color:#111827;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      min-height:100vh;
+      padding:20px;
+    }
+
+    @keyframes fondoAnimado {
+      0% { background-position:0% 50%; }
+      50% { background-position:100% 50%; }
+      100% { background-position:0% 50%; }
+    }
+
+    .container { width:100%; max-width:800px; display:none; }
+    .container.active { display:block; }
+
+    /* HEADER iOS INICIO */
+    .inicio-header {
+      background:linear-gradient(135deg,#38bdf8,#1e3a8a);
+      padding:45px 25px;
+      border-radius:22px;
+      text-align:center;
+      color:white;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      position:relative;
+      overflow:hidden;
+      animation:slideDown .6s ease-out;
+    }
+
+    .inicio-header::after {
+      content:"";
+      position:absolute;
+      top:-60px;
+      left:-60px;
+      width:240px;
+      height:240px;
+      background:rgba(255,255,255,0.15);
+      filter:blur(50px);
+      border-radius:50%;
+    }
+
+    @keyframes slideDown {
+      from { opacity:0; transform:translateY(-25px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    /* HEADER GENERAL */
+    header {
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:#fff;
+      padding:20px;
+      border-radius:16px;
+      text-align:center;
+      margin-bottom:20px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.1);
+      position:relative;
+    }
+
+    h1 { margin:0 0 5px; font-size:26px; }
+    p { margin:0; opacity:0.9; }
+
+    .fecha-hoy {
+      display:block;
+      margin-top:10px;
+      font-weight:bold;
+      color:#dbeafe;
+      font-size:14px;
+      text-transform:capitalize;
+    }
+
+    .btn-ajustes {
+      position:absolute;
+      top:15px;
+      right:15px;
+      background:rgba(255,255,255,0.2);
+      border:none;
+      color:white;
+      font-size:22px;
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:.2s;
+    }
+    .btn-ajustes:hover { background:rgba(255,255,255,0.35); transform:rotate(45deg); }
+
+    /* GRID USUARIOS iOS */
+    .users-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+      gap:12px;
+      margin-top:20px;
+    }
+
+    .user-btn {
+      background:rgba(255,255,255,0.85);
+      backdrop-filter:blur(10px);
+      border-radius:20px;
+      height:110px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+      padding:0;
+      border:1px solid rgba(255,255,255,0.4);
+      box-shadow:0 6px 20px rgba(0,0,0,0.1);
+      cursor:pointer;
+      transition:transform .2s, box-shadow .2s;
+      animation:slideUp .5s ease both;
+    }
+
+    .user-btn:hover {
+      transform:translateY(-6px);
+      box-shadow:0 12px 30px rgba(0,0,0,0.2);
+    }
+
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(25px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    .user-btn span {
+      font-size:16px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:100%;
+    }
+
+    .btn-ruleta {
+      background:linear-gradient(135deg,#f59e0b,#d97706);
+      color:white;
+      padding:18px;
+      border-radius:16px;
+      font-size:20px;
+      font-weight:bold;
+      border:none;
+      width:100%;
+      box-shadow:0 6px 20px rgba(245,158,11,0.4);
+      transition:transform .2s, box-shadow .2s;
+      animation:slideUp .6s ease both;
+    }
+
+    .btn-ruleta:hover {
+      transform:translateY(-4px);
+      box-shadow:0 12px 30px rgba(245,158,11,0.6);
+    }
+
+    .btn-admin-gear {
+      background:none;
+      border:none;
+      color:white;
+      font-size:32px;
+      opacity:.5;
+      cursor:pointer;
+      margin-top:20px;
+      transition:.2s;
+      display:block;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .btn-admin-gear:hover {
+      opacity:1;
+      transform:rotate(45deg);
+    }
+
+    /* BOTONES GENERALES */
+    .btn {
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-bottom:10px;
+      transition:opacity .2s, transform .1s;
+    }
+    .btn:active { opacity:0.8; transform:scale(0.98); }
+
+    .btn-primary { background:var(--primary); color:white; }
+    .btn-secondary { background:#f3f4f6; color:#4b5563; }
+    .btn-success { background:var(--accent); color:white; box-shadow:0 4px 15px rgba(22,163,74,0.3); }
+    .btn-danger { background:var(--danger); color:white; }
+
+    /* PRODUCTOS */
+    .productos-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:15px;
+      margin-bottom:20px;
+    }
+
+    .producto-card {
+      background:var(--card);
+      border-radius:16px;
+      padding:18px;
+      text-align:center;
+      box-shadow:0 4px 15px rgba(0,0,0,0.05);
+      border:2px solid transparent;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+
+    .producto-card:active { border-color:var(--primary); }
+
+    .producto-icon { font-size:36px; }
+    .producto-nombre { margin:0; font-weight:bold; }
+
+    .producto-contador {
+      background:#f3f4f6;
+      color:var(--primary-dark);
+      font-size:20px;
+      font-weight:bold;
+      width:100%;
+      padding:8px;
+      border-radius:10px;
+      border:1px solid #e5e7eb;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .btn-restar {
+      background:#fee2e2;
+      color:var(--danger);
+      border:none;
+      border-radius:8px;
+      width:32px;
+      height:32px;
+      font-size:18px;
+      font-weight:bold;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .cerrar-vale-container {
+      background:var(--card);
+      padding:18px;
+      border-radius:16px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* ADMIN LISTA */
+    .admin-list {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height:260px;
+      overflow-y:auto;
+    }
+
+    .admin-user-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#f9fafb;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #e5e7eb;
+    }
+
+    .admin-user-row button {
+      background:#fee2e2;
+      color:#dc2626;
+      border:none;
+      padding:6px 10px;
+      border-radius:6px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    /* MODALES */
+    .modal-overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.5);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      backdrop-filter:blur(4px);
+      visibility:hidden;
+      opacity:0;
+      transition:.2s;
+      z-index:1000;
+      padding:20px;
+    }
+    .modal-overlay.active { visibility:visible; opacity:1; }
+
+    .modal {
+      background:var(--card);
+      padding:20px;
+      border-radius:18px;
+      width:100%;
+      max-width:420px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+
+    .input-group { margin-bottom:12px; text-align:left; }
+    .input-group label { display:block; margin-bottom:4px; font-size:14px; font-weight:bold; }
+    .input-group input {
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #d1d5db;
+      font-size:16px;
+    }
+
+    .pin-display {
+      font-size:28px;
+      letter-spacing:6px;
+      margin:15px 0;
+      height:36px;
+      color:var(--primary-dark);
+      font-weight:bold;
+      background:#f9fafb;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .keypad {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-bottom:15px;
+    }
+
+    .key {
+      background:#f3f4f6;
+      border:none;
+      padding:12px;
+      font-size:22px;
+      font-weight:bold;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    .key.action { background:#eef2ff; color:var(--primary); font-size:18px; }
+    .key.danger { background:#fee2e2; color:var(--danger); font-size:16px; }
+
+    /* RULETA PARTICIPANTES GRID */
+    #listaParticipantes {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      gap:10px;
+      padding:10px 0;
+    }
+
+    .participante-item {
+      background:rgba(255,255,255,0.9);
+      padding:10px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid #e5e7eb;
+      box-shadow:0 3px 8px rgba(0,0,0,0.08);
+    }
+
+    .participante-item input { transform:scale(1.2); }
+  </style>
+</head>
+<body>
+<!-- VISTA INICIO -->
+<div class="container active" id="vista-inicio">
+  <header class="inicio-header">
+    <h1>🍻 Cantina</h1>
+    <p>Selecciona tu usuario para empezar</p>
+  </header>
+
+  <div class="users-grid" id="usersGrid"></div>
+
+  <div style="margin-top:25px;">
+    <button class="btn-ruleta" onclick="cambiarVista('vista-ruleta-seleccion')">🎡 Ruleta Vale</button>
+  </div>
+
+  <button class="btn-admin-gear" onclick="abrirLoginAdmin()">⚙️</button>
+</div>
+
+<!-- VISTA USUARIO -->
+<div class="container" id="vista-usuario">
+  <header>
+    <button class="btn-ajustes" onclick="abrirAjustes()">⚙️</button>
+    <h1 id="userDashboardName">Hola</h1>
+    <p>Apunta tu consumición</p>
+    <span id="fechaHoy" class="fecha-hoy"></span>
+  </header>
+
+  <div class="productos-grid" id="productosGrid"></div>
+
+  <div class="cerrar-vale-container">
+    <button class="btn btn-success" onclick="cerrarVale()">✅ Cerrar Vale</button>
+    <button class="btn btn-secondary" onclick="cancelarVale()">Cancelar</button>
+  </div>
+</div>
+
+<!-- PANEL ADMIN -->
+<div class="container" id="vista-admin">
+  <header style="background:linear-gradient(135deg,#1f2937,#111827);">
+    <h1>⚙️ Panel Admin</h1>
+    <p>Gestión interna</p>
+  </header>
+
+  <div style="background:white;padding:20px;border-radius:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn btn-secondary" onclick="document.getElementById('importarJSON').click()">⬆️ Cargar BBDD</button>
+      <button class="btn btn-success" onclick="exportarUsuariosJSON()">⬇️ Guardar BBDD</button>
+    </div>
+
+    <input type="file" id="importarJSON" hidden accept=".json" onchange="importarUsuariosJSON(event)">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+      <button class="btn btn-primary" onclick="abrirRegistro()">➕ Nuevo Usuario</button>
+      <button class="btn btn-secondary" onclick="abrirCambioAdmin()">🔒 Cambiar PIN Admin</button>
+    </div>
+  </div>
+
+  <div style="background:white;padding:20px;border-radius:16px;margin-top:20px;">
+    <h3>Usuarios Registrados</h3>
+    <div class="admin-list" id="listaAdminUsuarios"></div>
+    <button class="btn btn-danger" onclick="salirAdmin()" style="margin-top:20px;">Cerrar Sesión</button>
+  </div>
+</div>
+
+<!-- SELECCIÓN RULETA -->
+<div class="container" id="vista-ruleta-seleccion">
+  <header>
+    <h1>🎡 Ruleta Vale</h1>
+    <p>Selecciona participantes</p>
+  </header>
+
+  <div style="background:white;padding:20px;border-radius:16px;">
+    <div id="listaParticipantes"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;">
+      <button class="btn btn-secondary" onclick="seleccionarTodos()">Seleccionar todos</button>
+      <button class="btn btn-secondary" onclick="limpiarSeleccion()">Limpiar</button>
+    </div>
+
+    <button class="btn btn-success" onclick="continuarRuleta()">Continuar →</button>
+    <button class="btn btn-primary" onclick="cambiarVista('vista-inicio')">🏠 Inicio</button>
+  </div>
+</div>
+
+<!-- RULETA GIRO -->
+<div class="container" id="vista-ruleta-giro">
+  <header>
+    <h1>🎡 Ruleta</h1>
+    <p>Gira para elegir</p>
+  </header>
+
+  <div style="background:white;padding:20px;border-radius:16px;">
+    <canvas id="canvasRuleta" width="500" height="500"
+      style="max-width:100%;display:block;margin:20px auto;"></canvas>
+
+    <div id="ruletaResultado" style="margin:20px 0;font-size:32px;font-weight:bold;text-align:center;">🎡</div>
+
+    <button class="btn btn-success" onclick="iniciarRuleta()">Girar</button>
+    <button class="btn btn-secondary" onclick="volverDesdeRuleta()">← Volver</button>
+  </div>
+</div>
+
+<!-- MODAL LOGIN ADMIN -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal">
+    <h2>Acceso Admin</h2>
+    <div class="input-group">
+      <label>PIN Admin</label>
+      <input type="password" id="adminPinInput" placeholder="****" style="text-align:center;font-size:22px;">
+    </div>
+    <button class="btn btn-primary" onclick="checkAdminPin()">Entrar</button>
+    <button class="btn btn-secondary" onclick="closeModal('adminLoginModal')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL CAMBIO PIN ADMIN -->
+<div class="modal-overlay" id="adminChangeModal">
+  <div class="modal">
+    <h2>Cambiar PIN Admin</h2>
+    <div class="input-group">
+      <label>PIN actual</label>
+      <input type="password" id="adminCurrentPin" placeholder="****">
+    </div>
+    <div class="input-group">
+      <label>Nuevo PIN</label>
+      <input type="password" id="adminNewPin1" placeholder="****">
+    </div>
+    <div class="input-group">
+      <label>Repite nuevo PIN</label>
+      <input type="password" id="adminNewPin2" placeholder="****">
+    </div>
+    <button class="btn btn-primary" onclick="guardarCambioAdmin()">Guardar</button>
+    <button class="btn btn-secondary" onclick="closeModal('adminChangeModal')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL LOGIN USUARIO -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <h2 id="loginName">Hola</h2>
+    <p>Introduce tu PIN</p>
+    <div class="pin-display" id="pinDisplay"></div>
+
+    <div class="keypad">
+      <button class="key" onclick="addPin('1')">1</button>
+      <button class="key" onclick="addPin('2')">2</button>
+      <button class="key" onclick="addPin('3')">3</button>
+      <button class="key" onclick="addPin('4')">4</button>
+      <button class="key" onclick="addPin('5')">5</button>
+      <button class="key" onclick="addPin('6')">6</button>
+      <button class="key" onclick="addPin('7')">7</button>
+      <button class="key" onclick="addPin('8')">8</button>
+      <button class="key" onclick="addPin('9')">9</button>
+      <button class="key danger" onclick="clearPin()">BORRAR</button>
+      <button class="key" onclick="addPin('0')">0</button>
+      <button class="key action" onclick="checkPin()">ENTRAR</button>
+    </div>
+
+    <button class="btn btn-secondary" onclick="closeModal('loginModal')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL REGISTRO -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <h2>Nuevo Usuario</h2>
+    <div class="input-group">
+      <label>Nombre</label>
+      <input type="text" id="regName" placeholder="Ej. Ana García">
+    </div>
+    <div class="input-group">
+      <label>PIN</label>
+      <input type="password" id="regPin1" placeholder="****">
+    </div>
+    <div class="input-group">
+      <label>Repite PIN</label>
+      <input type="password" id="regPin2" placeholder="****">
+    </div>
+    <button class="btn btn-primary" onclick="registrarUsuario()">Guardar</button>
+    <button class="btn btn-secondary" onclick="closeModal('registerModal')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL AJUSTES USUARIO -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h2>Cambiar PIN</h2>
+    <div class="input-group">
+      <label>PIN actual</label>
+      <input type="password" id="setPinActual" placeholder="****">
+    </div>
+    <div class="input-group">
+      <label>Nuevo PIN</label>
+      <input type="password" id="setPinNuevo" placeholder="****">
+    </div>
+    <button class="btn btn-primary" onclick="guardarNuevoPin()">Guardar</button>
+    <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Cancelar</button>
+  </div>
+</div>
+
+<!-- SONIDOS RULETA -->
+<audio id="sndClick" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav"></audio>
+<audio id="sndFinal" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-game-level-completed-2059.wav"></audio>
+
+<script>
+const STORAGE_KEY = "cantina_acceso_usuarios";
+let usuarios = [];
+let selectedUser = null;
+let currentPin = "";
+let sesionConsumos = {};
+let anguloRuleta = 0;
+let ruletaTerminada = false;
+
+const ICONO_USUARIO = "👤";
+
+const PRODUCTOS = [
+  { id:1, nombre:"Cerveza", icono:"🍺" },
+  { id:2, nombre:"Café", icono:"☕" },
+  { id:3, nombre:"Refresco", icono:"🥤" }
+];
+
+async function sha256Hex(text){
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+  await cargarUsuarios();
+  dibujarGridUsuarios();
+  actualizarFechaHeader();
+
+  // Desbloquear audio tras primer toque en Android
+  document.body.addEventListener("touchstart", desbloquearSonidos, { once:true, passive:true });
+});
+
+function desbloquearSonidos(){
+  const c = document.getElementById("sndClick");
+  const f = document.getElementById("sndFinal");
+  c.play().catch(()=>{});
+  f.play().catch(()=>{});
+  c.pause(); f.pause();
+  c.currentTime = 0; f.currentTime = 0;
+}
+
+async function cargarUsuarios(){
+  const data = localStorage.getItem(STORAGE_KEY);
+  if(data){
+    try { usuarios = JSON.parse(data); } catch { usuarios = []; }
+  }
+  if(!usuarios.find(u=>u.id===1)){
+    usuarios.push({
+      id:1,
+      nombre:"admin",
+      pinHash:await sha256Hex("1234"),
+      consumos:{1:0,2:0,3:0},
+      mustChangePin:true
+    });
+  }
+  guardarUsuarios();
+}
+
+function guardarUsuarios(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(usuarios));
+}
+
+function cambiarVista(v){
+  document.querySelectorAll(".container").forEach(c=>c.classList.remove("active"));
+  document.getElementById(v).classList.add("active");
+  if(v==="vista-ruleta-seleccion") cargarParticipantesRuleta();
+}
+
+function dibujarGridUsuarios(){
+  const grid = document.getElementById("usersGrid");
+  grid.innerHTML = "";
+
+  usuarios
+    .filter(u=>u.id!==1)
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre))
+    .forEach(u=>{
+      const btn = document.createElement("button");
+      btn.className = "user-btn";
+      btn.innerHTML = `
+        <div style="font-size:32px;">${ICONO_USUARIO}</div>
+        <span>${escapeHtml(u.nombre)}</span>
+      `;
+      btn.onclick = ()=>abrirLogin(u);
+      grid.appendChild(btn);
+    });
+}
+
+function abrirLogin(user){
+  selectedUser = user;
+  currentPin = "";
+  document.getElementById("loginName").textContent = "Hola, " + user.nombre;
+  document.getElementById("pinDisplay").textContent = "";
+  document.getElementById("loginModal").classList.add("active");
+}
+
+function addPin(n){
+  if(currentPin.length<8){
+    currentPin += n;
+    document.getElementById("pinDisplay").textContent = "*".repeat(currentPin.length);
+  }
+}
+
+function clearPin(){
+  currentPin = "";
+  document.getElementById("pinDisplay").textContent = "";
+}
+
+async function checkPin(){
+  const hash = await sha256Hex(currentPin);
+  if(hash === selectedUser.pinHash){
+    closeModal("loginModal");
+    iniciarSesionDashboard();
+  } else {
+    alert("PIN incorrecto");
+    clearPin();
+  }
+}
+
+function actualizarFechaHeader(){
+  const opciones = { weekday:"long", year:"numeric", month:"long", day:"numeric" };
+  document.getElementById("fechaHoy").textContent =
+    new Date().toLocaleDateString("es-ES", opciones);
+}
+function iniciarSesionDashboard(){
+  PRODUCTOS.forEach(p=>sesionConsumos[p.id]=0);
+  document.getElementById("userDashboardName").textContent = "¡Hola, " + selectedUser.nombre + "!";
+  dibujarGridProductos();
+  cambiarVista("vista-usuario");
+}
+
+function dibujarGridProductos(){
+  const grid = document.getElementById("productosGrid");
+  grid.innerHTML = "";
+  PRODUCTOS.forEach(p=>{
+    grid.innerHTML += `
+      <div class="producto-card" onclick="sumarConsumo(${p.id})">
+        <div class="producto-icon">${p.icono}</div>
+        <p class="producto-nombre">${p.nombre}</p>
+        <div class="producto-contador">
+          <button class="btn-restar" onclick="restarConsumo(event,${p.id})">-</button>
+          <span id="contador-${p.id}">0</span>
+          <div style="width:32px;"></div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function sumarConsumo(id){
+  sesionConsumos[id] = (sesionConsumos[id]||0) + 1;
+  document.getElementById("contador-"+id).textContent = sesionConsumos[id];
+}
+
+function restarConsumo(e,id){
+  e.stopPropagation();
+  if((sesionConsumos[id]||0)>0){
+    sesionConsumos[id]--;
+    document.getElementById("contador-"+id).textContent = sesionConsumos[id];
+  }
+}
+
+function cerrarVale() {
+  if (!selectedUser.consumos) selectedUser.consumos = { 1: 0, 2: 0, 3: 0 };
+
+  let totalApuntado = 0;
+  let detalleVale = {};
+
+  PRODUCTOS.forEach(prod => {
+    const cantidad = sesionConsumos[prod.id] || 0;
+    selectedUser.consumos[prod.id] = (selectedUser.consumos[prod.id] || 0) + cantidad;
+    totalApuntado += cantidad;
+    if (cantidad > 0) detalleVale[prod.nombre] = cantidad;
+  });
+
+  if (totalApuntado > 0) {
+    const fechaObj = new Date();
+    const año = fechaObj.getFullYear();
+    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(fechaObj.getDate()).padStart(2, '0');
+    const fechaStr = `${año}-${mes}-${dia}`;
+
+    if (!selectedUser.contadorDiario || selectedUser.contadorDiario.fecha !== fechaStr) {
+      selectedUser.contadorDiario = { fecha: fechaStr, count: 1 };
+    } else {
+      selectedUser.contadorDiario.count++;
+    }
+
+    const idx = usuarios.findIndex(u => u.id === selectedUser.id);
+    if (idx !== -1) usuarios[idx] = selectedUser;
+
+    guardarUsuarios();
+
+    const datosVale = {
+      usuario: selectedUser.nombre,
+      fecha: fechaObj.toLocaleDateString('es-ES'),
+      hora: fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+      totalArticulos: totalApuntado,
+      detalle: detalleVale
+    };
+
+    const nombreSinEspacios = selectedUser.nombre.replace(/\s+/g, '_');
+    const nombreArchivo = `${nombreSinEspacios}_${fechaStr}_${selectedUser.contadorDiario.count}.json`;
+
+    const blob = new Blob([JSON.stringify(datosVale, null, 2)], { type: 'application/json' });
+
+    try {
+      const url = URL.createObjectURL(blob);
+      const enlaceDescarga = document.createElement('a');
+      enlaceDescarga.href = url;
+      enlaceDescarga.download = nombreArchivo;
+      document.body.appendChild(enlaceDescarga);
+      enlaceDescarga.click();
+      document.body.removeChild(enlaceDescarga);
+      URL.revokeObjectURL(url);
+      alert('✅ ¡Vale cerrado correctamente!\nSe ha descargado el archivo JSON.');
+    } catch {
+      const texto = JSON.stringify(datosVale, null, 2);
+      const nueva = window.open();
+      if (nueva) {
+        nueva.document.write(`<pre>${texto}</pre>`);
+      }
+      alert('✅ ¡Vale cerrado correctamente!\nNo se pudo descargar automáticamente, se ha abierto el JSON en otra pestaña.');
+    }
+  }
+
+  salirDashboard();
+}
+
+function cancelarVale(){
+  salirDashboard();
+}
+
+function salirDashboard(){
+  selectedUser = null;
+  cambiarVista("vista-inicio");
+}
+
+/* ADMIN */
+
+function abrirLoginAdmin(){
+  document.getElementById("adminPinInput").value = "";
+  document.getElementById("adminLoginModal").classList.add("active");
+}
+
+async function checkAdminPin(){
+  const pin = document.getElementById("adminPinInput").value;
+  const admin = usuarios.find(u=>u.id===1);
+  if(!admin) return alert("No hay admin configurado");
+  const hash = await sha256Hex(pin);
+  if(hash===admin.pinHash){
+    closeModal("adminLoginModal");
+    dibujarListaAdmin();
+    cambiarVista("vista-admin");
+  } else {
+    alert("PIN admin incorrecto");
+  }
+}
+
+function dibujarListaAdmin(){
+  const cont = document.getElementById("listaAdminUsuarios");
+  cont.innerHTML = "";
+  usuarios.forEach(u=>{
+    const esAdmin = u.id===1;
+    cont.innerHTML += `
+      <div class="admin-user-row">
+        <div><strong>${escapeHtml(u.nombre)}</strong> ${esAdmin?"<span style='color:#38bdf8'>(admin)</span>":""}</div>
+        ${esAdmin?"":`<button onclick="eliminarUsuario(${u.id})">Eliminar</button>`}
+      </div>
+    `;
+  });
+}
+
+function eliminarUsuario(id){
+  if(!confirm("¿Eliminar usuario?")) return;
+  usuarios = usuarios.filter(u=>u.id!==id);
+  guardarUsuarios();
+  dibujarListaAdmin();
+  dibujarGridUsuarios();
+}
+
+function salirAdmin(){
+  cambiarVista("vista-inicio");
+}
+
+/* IMPORT / EXPORT */
+
+function importarUsuariosJSON(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!Array.isArray(data)) return alert("JSON inválido");
+      usuarios = data;
+      if(!usuarios.find(u=>u.id===1)){
+        usuarios.push({
+          id:1,
+          nombre:"admin",
+          pinHash:await sha256Hex("1234"),
+          consumos:{1:0,2:0,3:0},
+          mustChangePin:true
+        });
+      }
+      guardarUsuarios();
+      dibujarListaAdmin();
+      dibujarGridUsuarios();
+      alert("BBDD importada");
+    }catch{
+      alert("Error leyendo JSON");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+}
+
+function exportarUsuariosJSON(){
+  const blob = new Blob([JSON.stringify(usuarios,null,2)],{type:"application/json"});
+  try {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cantina_usuarios.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    alert("BBDD exportada");
+  } catch {
+    const nueva = window.open();
+    if (nueva) {
+      nueva.document.write(`<pre>${JSON.stringify(usuarios,null,2)}</pre>`);
+    }
+    alert("No se pudo descargar automáticamente, se ha abierto el JSON en otra pestaña.");
+  }
+}
+
+/* REGISTRO */
+
+function abrirRegistro(){
+  document.getElementById("regName").value = "";
+  document.getElementById("regPin1").value = "";
+  document.getElementById("regPin2").value = "";
+  document.getElementById("registerModal").classList.add("active");
+}
+
+async function registrarUsuario(){
+  const nombre = document.getElementById("regName").value.trim();
+  const p1 = document.getElementById("regPin1").value;
+  const p2 = document.getElementById("regPin2").value;
+  if(!nombre) return alert("Introduce nombre");
+  if(!p1 || p1!==p2) return alert("PINs no válidos");
+  if(usuarios.find(u=>u.nombre.toLowerCase()===nombre.toLowerCase()))
+    return alert("Ya existe ese usuario");
+  const hash = await sha256Hex(p1);
+  usuarios.push({
+    id:Date.now(),
+    nombre,
+    pinHash:hash,
+    consumos:{1:0,2:0,3:0}
+  });
+  guardarUsuarios();
+  dibujarGridUsuarios();
+  dibujarListaAdmin();
+  closeModal("registerModal");
+}
+
+/* CAMBIO PIN ADMIN */
+
+function abrirCambioAdmin(){
+  document.getElementById("adminCurrentPin").value = "";
+  document.getElementById("adminNewPin1").value = "";
+  document.getElementById("adminNewPin2").value = "";
+  document.getElementById("adminChangeModal").classList.add("active");
+}
+
+async function guardarCambioAdmin(){
+  const actual = document.getElementById("adminCurrentPin").value;
+  const n1 = document.getElementById("adminNewPin1").value;
+  const n2 = document.getElementById("adminNewPin2").value;
+  if(!actual || !n1 || !n2) return alert("Rellena todos los campos");
+  if(n1!==n2) return alert("Los nuevos PIN no coinciden");
+  const adminIdx = usuarios.findIndex(u=>u.id===1);
+  if(adminIdx===-1) return alert("No hay admin");
+  const hashActual = await sha256Hex(actual);
+  if(hashActual!==usuarios[adminIdx].pinHash) return alert("PIN actual incorrecto");
+  usuarios[adminIdx].pinHash = await sha256Hex(n1);
+  delete usuarios[adminIdx].mustChangePin;
+  guardarUsuarios();
+  alert("PIN admin actualizado");
+  closeModal("adminChangeModal");
+}
+
+/* AJUSTES USUARIO */
+
+function abrirAjustes(){
+  if(!selectedUser) return alert("Sin usuario activo");
+  document.getElementById("setPinActual").value = "";
+  document.getElementById("setPinNuevo").value = "";
+  document.getElementById("settingsModal").classList.add("active");
+}
+
+async function guardarNuevoPin(){
+  if(!selectedUser) return;
+  const actual = document.getElementById("setPinActual").value;
+  const nuevo = document.getElementById("setPinNuevo").value;
+  if(!actual || !nuevo) return alert("Rellena ambos campos");
+  const hashActual = await sha256Hex(actual);
+  if(hashActual!==selectedUser.pinHash) return alert("PIN actual incorrecto");
+  const hashNuevo = await sha256Hex(nuevo);
+  const idx = usuarios.findIndex(u=>u.id===selectedUser.id);
+  if(idx!==-1){
+    usuarios[idx].pinHash = hashNuevo;
+    selectedUser = usuarios[idx];
+    guardarUsuarios();
+    alert("PIN actualizado");
+    closeModal("settingsModal");
+  }
+}
+
+/* MODALES Y UTIL */
+
+function closeModal(id){
+  document.getElementById(id).classList.remove("active");
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"'`=\/]/g,s=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;","/":"&#x2F;","`":"&#x60;","=":"&#x3D;"
+  }[s]));
+}
+/* RULETA PARTICIPANTES */
+
+function cargarParticipantesRuleta(){
+  const c = document.getElementById("listaParticipantes");
+  c.innerHTML = "";
+  usuarios
+    .filter(u=>u.id!==1)
+    .forEach(u=>{
+      c.innerHTML += `
+        <label class="participante-item">
+          <input type="checkbox" value="${escapeHtml(u.nombre)}">
+          <span>${escapeHtml(u.nombre)}</span>
+        </label>
+      `;
+    });
+  dibujarRuleta();
+}
+
+function seleccionarTodos(){
+  document.querySelectorAll("#listaParticipantes input").forEach(c=>c.checked=true);
+  dibujarRuleta();
+}
+
+function limpiarSeleccion(){
+  document.querySelectorAll("#listaParticipantes input").forEach(c=>c.checked=false);
+  dibujarRuleta();
+}
+
+function nombresRuleta(){
+  return [...document.querySelectorAll("#listaParticipantes input:checked")].map(x=>x.value);
+}
+
+const PALETA_AVANZADA = [
+  "#FF6B6B","#FF8E72","#FFD93D","#6BCB77",
+  "#4D96FF","#845EC2","#FF9671","#FFC75F",
+  "#F9F871","#00C9A7","#C34A36","#0081CF"
+];
+
+function dibujarRuleta(){
+  const canvas = document.getElementById("canvasRuleta");
+  if(!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const nombres = nombresRuleta();
+  ctx.clearRect(0,0,500,500);
+
+  if(!nombres.length){
+    ctx.font = "24px Arial";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#111";
+    ctx.fillText("Selecciona participantes",250,250);
+    return;
+  }
+
+  const cx=250, cy=250, r=220;
+  const paso = (Math.PI*2)/nombres.length;
+
+  nombres.forEach((n,i)=>{
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,anguloRuleta+i*paso,anguloRuleta+(i+1)*paso);
+    ctx.closePath();
+    ctx.fillStyle = PALETA_AVANZADA[i%PALETA_AVANZADA.length];
+    ctx.fill();
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(anguloRuleta+i*paso+paso/2);
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(n,r*0.55,5);
+    ctx.restore();
+  });
+
+  // Triángulo arriba, punta hacia abajo
+  ctx.beginPath();
+  ctx.moveTo(250,40);
+  ctx.lineTo(235,10);
+  ctx.lineTo(265,10);
+  ctx.fillStyle = "red";
+  ctx.fill();
+}
+
+document.addEventListener("change",e=>{
+  if(e.target.closest("#listaParticipantes")) dibujarRuleta();
+});
+
+function continuarRuleta(){
+  const participantes = nombresRuleta();
+  if(participantes.length<2) return alert("Selecciona al menos 2");
+  ruletaTerminada = false;
+  document.getElementById("ruletaResultado").textContent = "🎡";
+  cambiarVista("vista-ruleta-giro");
+  setTimeout(dibujarRuleta,200);
+}
+
+function iniciarRuleta(){
+  const participantes = nombresRuleta();
+  if(participantes.length<2) return alert("Selecciona al menos 2");
+
+  let velocidad = 0.35 + Math.random()*0.45;
+  let desaceleracion = 0.0009 + Math.random()*0.0005;
+  let ultimoTiempo = null;
+  let tiempoClick = 0;
+
+  const sndClick = document.getElementById("sndClick");
+  const sndFinal = document.getElementById("sndFinal");
+  const resultado = document.getElementById("ruletaResultado");
+
+  function animar(timestamp){
+    if(!ultimoTiempo) ultimoTiempo = timestamp;
+    const delta = timestamp - ultimoTiempo;
+    ultimoTiempo = timestamp;
+
+    anguloRuleta += velocidad*(delta/16.67);
+    velocidad -= desaceleracion*(delta/16.67);
+    if(velocidad<0) velocidad=0;
+
+    dibujarRuleta();
+
+    tiempoClick += delta;
+    const intervaloClick = Math.max(30,300-velocidad*400);
+    if(tiempoClick>=intervaloClick){
+      sndClick.currentTime = 0;
+      sndClick.play().catch(()=>{});
+      tiempoClick = 0;
+    }
+
+    if(velocidad>0.002){
+      requestAnimationFrame(animar);
+      return;
+    }
+
+    const paso = (Math.PI*2)/participantes.length;
+    let idx = Math.floor(
+      (((Math.PI*1.5)-anguloRuleta)%(Math.PI*2)+(Math.PI*2))/paso
+    );
+    idx = idx%participantes.length;
+
+    sndFinal.currentTime = 0;
+    sndFinal.play().catch(()=>{});
+
+    let rebote = 0.12;
+    let freno = 0.92;
+    let ciclos = 0;
+
+    function animarRebote(){
+      anguloRuleta += rebote;
+      rebote *= -freno;
+      dibujarRuleta();
+      ciclos++;
+      if(Math.abs(rebote)>0.002 && ciclos<20){
+        requestAnimationFrame(animarRebote);
+      } else {
+        ruletaTerminada = true;
+        resultado.textContent = "🏆 " + participantes[idx] + " hará el vale";
+      }
+    }
+    requestAnimationFrame(animarRebote);
+  }
+
+  requestAnimationFrame(animar);
+}
+
+function volverDesdeRuleta(){
+  if(ruletaTerminada){
+    ruletaTerminada = false;
+    cambiarVista("vista-inicio");
+  } else {
+    cambiarVista("vista-ruleta-seleccion");
+  }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .catch(err => console.error('SW error', err));
+}
+</script>
+</body>
+</html>
