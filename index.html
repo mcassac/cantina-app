@@ -1212,8 +1212,7 @@ function volverDesdeRuleta(){
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .catch(err => console.error('SW error', err));
+  navigator.serviceWorker.register('/cantina-app/sw.js');
 }
 </script>
 </body>
