@@ -1213,12 +1213,12 @@ function volverDesdeRuleta(){
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      // Reemplaza "nombre-de-tu-repositorio" con el nombre real en GitHub
-      navigator.serviceWorker.register('/cantina-app/sw.js')
-        .then(reg => console.log('Service Worker registrado con éxito', reg))
-        .catch(err => console.error('Error al registrar el Service Worker', err));
+      navigator.serviceWorker.register('/cantina-app/sw.js', { scope: '/cantina-app/' })
+        .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+        .catch(err => console.error('Error al registrar el Service Worker:', err));
     });
   }
 </script>
+
 </body>
 </html>
