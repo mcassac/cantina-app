@@ -1,11 +1,11 @@
 const CACHE_NAME = 'cantina-cache-v1';
 const ASSETS = [
-  '/cantina-app/',
-  '/cantina-app/index.html',
-  '/cantina-app/manifest.webmanifest',
-  '/cantina-app/sw.js',
-  '/cantina-app/icons/icon-192.png',
-  '/cantina-app/icons/icon-512.png'
+  './',
+  'index.html',
+  'manifest.webmanifest',
+  'sw.js',
+  'icons/icon-192.png',
+  'icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -29,4 +29,3 @@ self.addEventListener('fetch', event => {
     caches.match(event.request).then(resp => resp || fetch(event.request))
   );
 });
-
